@@ -6,7 +6,7 @@
 
 ## Supports
 
-ExpandedLabel can easy fit and auto expand height of label with the inputed text.
+ExpandedLabel can easy fit and auto expand height of label with the inputed text, it supports iOS 6 and iOS 7.
 
 ## How To Get Started
 
@@ -21,7 +21,7 @@ ExpandedLabel can easy fit and auto expand height of label with the inputed text
 
 ## Version
 
-V0.9.
+V1.1.
 
 ## License
 

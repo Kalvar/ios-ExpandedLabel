@@ -1,6 +1,6 @@
 //
 //  ExpandedLabel.h
-//  ExpandedLabel
+//  V1.1
 //
 //  Created by Kalvar on 13/6/27.
 //  Copyright (c) 2013年 Kuo-Ming Lin. All rights reserved.
