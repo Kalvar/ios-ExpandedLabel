@@ -1,14 +1,16 @@
 //
 //  ExpandedLabel.m
-//  V1.1
+//  V1.2
 //
 //  Created by Kalvar on 13/6/27.
-//  Copyright (c) 2013年 Kuo-Ming Lin. All rights reserved.
+//  Copyright (c) 2013 - 2014 年 Kuo-Ming Lin. All rights reserved.
 //
 
 #import "ExpandedLabel.h"
 
 @interface ExpandedLabel ()
+
+@property (nonatomic, assign) BOOL _isWidthMode;
 
 @end
 
@@ -41,7 +43,7 @@
         _textFont = [UIFont systemFontOfSize:17.0f];
     }
     NSString *_text   = self.text;
-    CGSize _scopeSize = CGSizeMake(self.frame.size.width, CGFLOAT_MAX);
+    CGSize _scopeSize = self._isWidthMode ? CGSizeMake(CGFLOAT_MAX, self.frame.size.height) : CGSizeMake(self.frame.size.width, CGFLOAT_MAX);
     //將字串格式化為屬性字串
     //NSAttributedString *_attributedString = [[NSAttributedString alloc] initWithString:_text];
     //可以這麼用
@@ -65,8 +67,9 @@
 -(CGSize)_calculateForIOS6
 {
     //必須給定一個固定的寬度，才能計算可變的高度
+    CGSize _toSize = self._isWidthMode ? CGSizeMake(CGFLOAT_MAX, self.frame.size.height) : CGSizeMake(self.frame.size.width, CGFLOAT_MAX);
     CGSize size = [self.text sizeWithFont:self.font
-                        constrainedToSize:CGSizeMake(self.frame.size.width, CGFLOAT_MAX)
+                        constrainedToSize:_toSize
                             lineBreakMode:NSLineBreakByWordWrapping];
     return size;
 }
@@ -75,30 +78,60 @@
 
 @implementation ExpandedLabel
 
-@synthesize defaultHeight;
+@synthesize defaultHeight = _defaultHeight;
+@synthesize defaultWidth  = _defaultWidth;
+
++(instancetype)sharedLabel
+{
+    static dispatch_once_t pred;
+    static ExpandedLabel *_object = nil;
+    dispatch_once(&pred, ^{
+        _object = [[ExpandedLabel alloc] init];
+    });
+    return _object;
+}
 
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
     if (self)
     {
-        
+        _defaultHeight = CGFLOAT_MIN;
+        _defaultWidth  = CGFLOAT_MAX;
     }
     return self;
 }
 
-#pragma --mark Methods
+#pragma --mark Public Methods
 -(float)getExpandedHeight
 {
+    self._isWidthMode = NO;
     CGSize size = [self _isIOS7] ? [self _calculateForIOS7] : [self _calculateForIOS6];
-    return (CGFloat) MAX(size.height, self.defaultHeight);
+    return (CGFloat) MAX(size.height, _defaultHeight);
+}
+
+-(float)getExpandedWidth
+{
+    self._isWidthMode = YES;
+    CGSize size = [self _isIOS7] ? [self _calculateForIOS7] : [self _calculateForIOS6];
+    return (CGFloat) MIN(size.width, _defaultWidth);
 }
 
 -(void)autoExpandHeight
 {
+    self._isWidthMode = NO;
     [self _fitsInfiniteExpanded];
     CGRect _frame      = self.frame;
     _frame.size.height = [self getExpandedHeight];
+    [self setFrame:_frame];
+}
+
+-(void)autoExpandWidth
+{
+    self._isWidthMode = YES;
+    [self _fitsInfiniteExpanded];
+    CGRect _frame      = self.frame;
+    _frame.size.width  = [self getExpandedWidth];
     [self setFrame:_frame];
 }
 
